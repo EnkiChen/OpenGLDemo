@@ -32,6 +32,7 @@
                         </constraints>
                         <connections>
                             <outletCollection property="gestureRecognizers" destination="HDw-Wc-0hr" appends="YES" id="r7a-Oe-BEU"/>
+                            <outletCollection property="gestureRecognizers" destination="vtF-j2-xir" appends="YES" id="Hhx-Ly-m1U"/>
                         </connections>
                     </view>
                     <connections>
@@ -44,6 +45,11 @@
                         <action selector="handleTap:" destination="BYZ-38-t0r" id="e2o-e4-Xlx"/>
                     </connections>
                 </panGestureRecognizer>
+                <pinchGestureRecognizer id="vtF-j2-xir">
+                    <connections>
+                        <action selector="handlePinch:" destination="BYZ-38-t0r" id="Un0-Zg-5sV"/>
+                    </connections>
+                </pinchGestureRecognizer>
             </objects>
         </scene>
     </scenes>

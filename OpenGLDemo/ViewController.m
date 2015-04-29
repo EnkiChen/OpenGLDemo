@@ -21,8 +21,6 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    
-    
     self.shape = [[MLShape alloc] init];
     
     [self.shape addPoint:[NSValue valueWithCGPoint:CGPointMake(0.f, 0.f)]];
@@ -33,8 +31,16 @@
     [self.openGLView addShape:self.shape];
     [self.shape updateGenBuffers];
     
-    [self.openGLView startAnimate];
+//    [self.openGLView startAnimate];
     
+}
+
+- (IBAction)handlePinch:(id)sender {
+    
+    UIPinchGestureRecognizer *rcognizer = sender;
+    [self.openGLView setScal:rcognizer.scale];
+    [self.openGLView drawView];
+    rcognizer.scale = 1.f;
 }
 
 - (IBAction)handleTap:(id)sender {
@@ -42,20 +48,22 @@
     UIPanGestureRecognizer *tapGesture = sender;
     
     CGPoint locationPoint = [tapGesture locationInView:tapGesture.view];
-    NSLog(@"%@", NSStringFromCGPoint(locationPoint));
+
     if ( UIGestureRecognizerStateBegan == tapGesture.state ) {
         
         self.shape = [[MLShape alloc] init];
         [self.shape addPoint:[NSValue valueWithCGPoint:locationPoint]];
+        [self.shape addPoint:[NSValue valueWithCGPoint:locationPoint]];
+        [self.openGLView addShape:self.shape];
         
     } else if ( UIGestureRecognizerStateChanged == tapGesture.state ) {
     
         [self.shape addPoint:[NSValue valueWithCGPoint:locationPoint]];
+        [self.openGLView drawView];
         
     } else if ( UIGestureRecognizerStateEnded == tapGesture.state ) {
         
         [self.shape addPoint:[NSValue valueWithCGPoint:locationPoint]];
-        [self.openGLView addShape:self.shape];
         [self.shape updateGenBuffers];
         [self.openGLView drawView];
         self.shape = nil;

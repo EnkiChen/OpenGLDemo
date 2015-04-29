@@ -12,5 +12,6 @@
 - (void)startAnimate;
 - (void)stopAnimate;
 - (void) addShape:(id) shape;
+- (void) setScal:(CGFloat) scale;
 - (void)drawView;
 @end

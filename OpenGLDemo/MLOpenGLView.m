@@ -37,6 +37,7 @@
     
     CADisplayLink *displayLink;
     GLfloat degree;
+    GLfloat _scale;
     
     MLShape *shape;
     
@@ -86,6 +87,8 @@
     
     shape = [[MLShape alloc] init];
     shapes = [NSMutableArray array];
+    
+    _scale = 1.f;
 }
 
 - (void)startAnimate
@@ -106,6 +109,11 @@
     }
 }
 
+- (void) setScal:(CGFloat) scale
+{
+    _scale *= scale;
+}
+
 - (void) addShape:(id) shapeobj
 {
     [shapes addObject:shapeobj];
@@ -118,7 +126,7 @@
     // Model view translates
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glScalef(1.f, -1.f, 1.f);
+    glScalef(1.f * _scale, -1.f * _scale, 1.f);
     
     // 绑定FBO
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, msaaFramebuffer);
@@ -154,9 +162,7 @@
 - (void)animateHandler:(CADisplayLink*)link
 {
     degree += 1.0f;
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self drawView];
-    });
+    [self drawView];
     
 }
 

@@ -17,7 +17,7 @@ typedef struct _Vertex{
     GLfloat x;
     GLfloat y;
     GLfloat z;
-}Vertex;
+}Vertex3D;
 
 static const GLfloat vertexInfoList[] = {
     -150.f, 150.f, 0.0f,       // top left
@@ -38,6 +38,8 @@ static const GLfloat colorInfoList[] = {
     GLuint vao;
     GLuint vboVertices, vboColors;
     NSMutableArray *_points;
+    Vertex3D *_pVertex3D;
+    BOOL isVAO;
 }
 
 - (instancetype) init
@@ -46,6 +48,8 @@ static const GLfloat colorInfoList[] = {
     if ( self ) {
 //        [self setup];
         _points = [NSMutableArray array];
+        GLsizeiptr vertexsize = sizeof(Vertex3D) * 1000;
+        _pVertex3D = malloc( vertexsize );
     }
     
     return self;
@@ -53,13 +57,21 @@ static const GLfloat colorInfoList[] = {
 
 - (void) addPoint:(NSValue*) value
 {
-    [_points addObject:value];
+    if ( value ) {
+        [_points addObject:value];
+        CGPoint point = [value CGPointValue];
+        _pVertex3D[_points.count-1].x = point.x * [UIScreen mainScreen].scale;
+        _pVertex3D[_points.count-1].y = point.y * [UIScreen mainScreen].scale;
+        _pVertex3D[_points.count-1].z = 0.f;
+    }
 }
 
 - (void) updateGenBuffers
 {
-    GLsizeiptr vertexsize = sizeof(Vertex) * _points.count;
-    Vertex *pv = malloc( vertexsize );
+    return;
+    isVAO = YES;
+    GLsizeiptr vertexsize = sizeof(Vertex3D) * _points.count;
+    Vertex3D *pv = malloc( vertexsize );
     GLvoid *pdata = pv;
     for ( NSValue *value in _points ) {
         CGPoint point = [value CGPointValue];
@@ -82,9 +94,30 @@ static const GLfloat colorInfoList[] = {
     
     // 取消VAO的绑定
     glBindVertexArrayOES(0);
-    
+    glDisableClientState(GL_VERTEX_ARRAY);
     free(pdata);
 }
+
+- (void) draw
+{
+    glColor4f(1.0, 0.f, 0.f, 1.f);
+    glLineWidth(4.f);
+
+    if ( isVAO ) {
+        
+        glBindVertexArrayOES(vao);
+        glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)_points.count);
+        
+    } else {
+    
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer(3, GL_FLOAT, 0, (const GLvoid*)_pVertex3D);
+        glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)_points.count);
+        glDisableClientState(GL_VERTEX_ARRAY);
+    
+    }
+}
+
 
 - (void) setup
 {
@@ -111,16 +144,9 @@ static const GLfloat colorInfoList[] = {
     glBindVertexArrayOES(0);
 }
 
-- (void) draw
-{
-    glColor4f(1.0, 0.f, 0.f, 1.f);
-    glLineWidth(2.f);
-    glBindVertexArrayOES(vao);
-    glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)_points.count);
-}
-
 - (void) dealloc
 {
+    free(_pVertex3D);
     glDeleteVertexArraysOES(1, &vao);
     glDeleteBuffers(1, &vboVertices);
     glDeleteBuffers(1, &vboColors);
