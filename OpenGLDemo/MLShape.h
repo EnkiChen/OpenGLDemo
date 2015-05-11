@@ -7,9 +7,17 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+typedef struct _Vertex{
+    GLfloat x;
+    GLfloat y;
+}Vertex3D;
 
 @interface MLShape : NSObject
+
 - (void) addPoint:(NSValue*) value;
 - (void) updateGenBuffers;
 - (void) draw;
+- (void) scale:(CGFloat) scale anchorPoint:(CGPoint) anchorPoint;
 @end

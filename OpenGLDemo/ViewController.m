@@ -31,16 +31,22 @@
     [self.openGLView addShape:self.shape];
     [self.shape updateGenBuffers];
     
-//    [self.openGLView startAnimate];
-    
 }
 
 - (IBAction)handlePinch:(id)sender {
     
     UIPinchGestureRecognizer *rcognizer = sender;
-    [self.openGLView setScal:rcognizer.scale];
-    [self.openGLView drawView];
-    rcognizer.scale = 1.f;
+    
+    if ( rcognizer.numberOfTouches == 2 && !isnan(rcognizer.scale) ) {
+        
+        CGPoint p1 = [rcognizer locationOfTouch: 0 inView:rcognizer.view ];
+        CGPoint p2 = [rcognizer locationOfTouch: 1 inView:rcognizer.view ];
+        CGPoint anchorPoint = CGPointMake( (p1.x+p2.x)/2,(p1.y+p2.y)/2);
+        CGFloat scale = rcognizer.scale;
+        [self.openGLView scale:scale anchorPoint:anchorPoint];
+        [self.openGLView drawView];
+        rcognizer.scale = 1.f;
+    }
 }
 
 - (IBAction)handleTap:(id)sender {

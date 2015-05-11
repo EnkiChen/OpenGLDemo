@@ -42,6 +42,9 @@
     MLShape *shape;
     
     NSMutableArray *shapes;
+    
+    Vertex3D horizontalLine[2];
+    Vertex3D verticalLine[2];
 }
 
 // initialize a CAEAGLLayer object rather than a CALayer object.
@@ -89,6 +92,20 @@
     shapes = [NSMutableArray array];
     
     _scale = 1.f;
+    
+    horizontalLine[0].x = 0.f;
+    horizontalLine[0].y = 768 / 2.f * [UIScreen mainScreen].scale;
+//    horizontalLine[0].z = 0;
+    horizontalLine[1].x = 1024.f * [UIScreen mainScreen].scale;
+    horizontalLine[1].y = 768 / 2.f * [UIScreen mainScreen].scale;
+//    horizontalLine[1].z = 0;
+    
+    verticalLine[0].x = 1024 / 2.f * [UIScreen mainScreen].scale;
+    verticalLine[0].y = 0.f;
+//    verticalLine[0].z = 0;
+    verticalLine[1].x = 1024.f / 2.f * [UIScreen mainScreen].scale;
+    verticalLine[1].y = 768.f * [UIScreen mainScreen].scale;
+//    verticalLine[1].z = 0;
 }
 
 - (void)startAnimate
@@ -109,9 +126,11 @@
     }
 }
 
-- (void) setScal:(CGFloat) scale
+- (void) scale:(CGFloat) scale anchorPoint:(CGPoint) anchorPoint
 {
-    _scale *= scale;
+    for ( MLShape *shapeobj in shapes ) {
+        [shapeobj scale:scale anchorPoint:anchorPoint];
+    }
 }
 
 - (void) addShape:(id) shapeobj
@@ -126,13 +145,21 @@
     // Model view translates
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glScalef(1.f * _scale, -1.f * _scale, 1.f);
+    glScalef(1.f, -1.f, 1.f);
     
     // 绑定FBO
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, msaaFramebuffer);
     glBindRenderbufferOES(GL_RENDERBUFFER_OES, msaaRenderbuffer);
     
     glClear(GL_COLOR_BUFFER_BIT);
+    
+    glLineWidth(1.f);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(2, GL_FLOAT, 0, (const GLvoid*)horizontalLine);
+    glDrawArrays(GL_LINE_STRIP, 0, 2);
+    
+    glVertexPointer(2, GL_FLOAT, 0, (const GLvoid*)verticalLine);
+    glDrawArrays(GL_LINE_STRIP, 0, 2);
     
     for ( MLShape *shapeobj in shapes ) {
         [shapeobj draw];
@@ -212,11 +239,15 @@
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     
-//    glOrthof(-backingWidth / 2.f, backingWidth / 2.f, -backingHeight/2.f, backingHeight/2.f, -1.0f, 1.0f);
     glOrthof(0.f, backingWidth, -backingHeight, 0, -1.0f, 1.0f);
     glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
     
     glEnable(GL_MULTISAMPLE);
+    glEnable(GL_LINE_SMOOTH);
+    glHint(GL_LINE_SMOOTH, GL_NICEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_DEPTH_TEST);
     
     return YES;
 }

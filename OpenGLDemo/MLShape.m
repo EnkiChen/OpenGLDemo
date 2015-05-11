@@ -13,11 +13,7 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 
-typedef struct _Vertex{
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-}Vertex3D;
+
 
 static const GLfloat vertexInfoList[] = {
     -150.f, 150.f, 0.0f,       // top left
@@ -40,13 +36,20 @@ static const GLfloat colorInfoList[] = {
     NSMutableArray *_points;
     Vertex3D *_pVertex3D;
     BOOL isVAO;
+    CGFloat _scale;
+    CGFloat _offsetX;
+    CGFloat _offsetY;
+    
+    
 }
 
 - (instancetype) init
 {
     self = [super init];
     if ( self ) {
-//        [self setup];
+        _scale = 1.f;
+        _offsetX = 0.f;
+        _offsetY = 0.f;
         _points = [NSMutableArray array];
         GLsizeiptr vertexsize = sizeof(Vertex3D) * 1000;
         _pVertex3D = malloc( vertexsize );
@@ -62,7 +65,7 @@ static const GLfloat colorInfoList[] = {
         CGPoint point = [value CGPointValue];
         _pVertex3D[_points.count-1].x = point.x * [UIScreen mainScreen].scale;
         _pVertex3D[_points.count-1].y = point.y * [UIScreen mainScreen].scale;
-        _pVertex3D[_points.count-1].z = 0.f;
+//        _pVertex3D[_points.count-1].z = 0.f;
     }
 }
 
@@ -77,7 +80,7 @@ static const GLfloat colorInfoList[] = {
         CGPoint point = [value CGPointValue];
         pv->x = point.x * [UIScreen mainScreen].scale;
         pv->y = point.y * [UIScreen mainScreen].scale;
-        pv->z = 0.f;
+//        pv->z = 0.f;
         pv++;
     }
     
@@ -98,9 +101,29 @@ static const GLfloat colorInfoList[] = {
     free(pdata);
 }
 
+- (void) scale:(CGFloat) scale anchorPoint:(CGPoint) anchorPoint
+{
+    anchorPoint.x *= [UIScreen mainScreen].scale;
+    anchorPoint.y *= [UIScreen mainScreen].scale;
+    
+    _scale *= scale;
+    _offsetX = anchorPoint.x * scale - anchorPoint.x;
+    _offsetY = anchorPoint.y * scale - anchorPoint.y;
+    
+    for ( int i = 0; i < _points.count; i++ ) {
+    
+        _pVertex3D[i].x *= scale;
+        _pVertex3D[i].y *= scale;
+        
+        _pVertex3D[i].x -= _offsetX;
+        _pVertex3D[i].y -= _offsetY;
+        
+    }
+}
+
 - (void) draw
 {
-    glColor4f(1.0, 0.f, 0.f, 1.f);
+    glColor4f(0.9, 0.9f, 0.9f, 1.f);
     glLineWidth(4.f);
 
     if ( isVAO ) {
@@ -111,7 +134,7 @@ static const GLfloat colorInfoList[] = {
     } else {
     
         glEnableClientState(GL_VERTEX_ARRAY);
-        glVertexPointer(3, GL_FLOAT, 0, (const GLvoid*)_pVertex3D);
+        glVertexPointer(2, GL_FLOAT, 0, (const GLvoid*)_pVertex3D);
         glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)_points.count);
         glDisableClientState(GL_VERTEX_ARRAY);
     
