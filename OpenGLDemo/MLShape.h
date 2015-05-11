@@ -16,7 +16,9 @@ typedef struct _Vertex{
 
 @interface MLShape : NSObject
 
-- (void) addPoint:(NSValue*) value;
+- (void) setInitPoint:(CGPoint) point;
+- (void) addTouchPoint:(CGPoint) point;
+- (void) addBezierPoint:(NSValue*) value;
 - (void) updateGenBuffers;
 - (void) draw;
 - (void) scale:(CGFloat) scale anchorPoint:(CGPoint) anchorPoint;

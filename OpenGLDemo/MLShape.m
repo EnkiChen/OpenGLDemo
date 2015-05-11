@@ -14,7 +14,6 @@
 #import <OpenGLES/ES1/glext.h>
 
 
-
 static const GLfloat vertexInfoList[] = {
     -150.f, 150.f, 0.0f,       // top left
     -150.f, -150.f, 0.0f,      // bottom left
@@ -28,6 +27,18 @@ static const GLfloat colorInfoList[] = {
     0.01f, 0.01f, 0.99f, 1.0f,
     0.01f, 0.02f, 0.01f, 1.0f
 };
+
+CGPoint midPoint(CGPoint p1, CGPoint p2)
+{
+    return CGPointMake((p1.x + p2.x) * 0.5, (p1.y + p2.y) * 0.5);
+}
+
+@interface MLShape ()
+
+@property (nonatomic, assign) CGPoint contrlLocation;
+@property (nonatomic, assign) CGPoint basePoint;
+
+@end
 
 @implementation MLShape
 {
@@ -51,22 +62,54 @@ static const GLfloat colorInfoList[] = {
         _offsetX = 0.f;
         _offsetY = 0.f;
         _points = [NSMutableArray array];
-        GLsizeiptr vertexsize = sizeof(Vertex3D) * 1000;
+        GLsizeiptr vertexsize = sizeof(Vertex3D) * 5000;
         _pVertex3D = malloc( vertexsize );
     }
     
     return self;
 }
 
-- (void) addPoint:(NSValue*) value
+- (void) setInitPoint:(CGPoint) point
+{
+    [self addBezierPoint:[NSValue valueWithCGPoint:point]];
+    self.basePoint = point;
+    self.contrlLocation = point;
+}
+
+- (void) addTouchPoint:(CGPoint) point
+{
+    CGPoint midpoint = midPoint(point, self.contrlLocation);
+    
+    [self updateBezier:self.basePoint control1:self.contrlLocation control2:midpoint];
+    
+    self.basePoint = midpoint;
+    self.contrlLocation = point;
+}
+
+- (void) addBezierPoint:(NSValue*) value
 {
     if ( value ) {
         [_points addObject:value];
         CGPoint point = [value CGPointValue];
         _pVertex3D[_points.count-1].x = point.x * [UIScreen mainScreen].scale;
         _pVertex3D[_points.count-1].y = point.y * [UIScreen mainScreen].scale;
-//        _pVertex3D[_points.count-1].z = 0.f;
     }
+}
+
+- (NSMutableArray*) updateBezier:(CGPoint) p0 control1:(CGPoint) p1 control2:(CGPoint) p2
+{
+    NSMutableArray *bezierpoint = [NSMutableArray array];
+    
+    for ( CGFloat t = 0.1; t <= 1.0; t += 0.1 ) {
+        
+        CGPoint p = CGPointZero;
+        p.x = pow( 1 - t , 2) * p0.x + 2 * t * (1-t) * p1.x + pow(t, 2) * p2.x;
+        p.y = pow( 1 - t , 2) * p0.y + 2 * t * (1-t) * p1.y + pow(t, 2) * p2.y;
+        
+        [self addBezierPoint:[NSValue valueWithCGPoint:p]];
+    }
+    
+    return bezierpoint;
 }
 
 - (void) updateGenBuffers
@@ -80,7 +123,6 @@ static const GLfloat colorInfoList[] = {
         CGPoint point = [value CGPointValue];
         pv->x = point.x * [UIScreen mainScreen].scale;
         pv->y = point.y * [UIScreen mainScreen].scale;
-//        pv->z = 0.f;
         pv++;
     }
     
@@ -125,7 +167,8 @@ static const GLfloat colorInfoList[] = {
 {
     glColor4f(0.9, 0.9f, 0.9f, 1.f);
     glLineWidth(4.f);
-
+    glPointSize(3.f);
+    
     if ( isVAO ) {
         
         glBindVertexArrayOES(vao);
@@ -136,6 +179,11 @@ static const GLfloat colorInfoList[] = {
         glEnableClientState(GL_VERTEX_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, (const GLvoid*)_pVertex3D);
         glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)_points.count);
+        
+//        glColor4f(0.9, 0.0f, 0.0f, 1.f);
+//        glVertexPointer(2, GL_FLOAT, 0, (const GLvoid*)_pVertex3D);
+//        glDrawArrays(GL_POINTS, 0, (GLsizei)_points.count);
+        
         glDisableClientState(GL_VERTEX_ARRAY);
     
     }
@@ -162,10 +210,12 @@ static const GLfloat colorInfoList[] = {
     // 注意这里对glEnableClientState(GL_COLOR_ARRAY)的调用必须紧跟着glColorPointer，否则调用无效！
     glEnableClientState(GL_COLOR_ARRAY);
     glColorPointer(4, GL_FLOAT, 0, (const GLvoid*)0);
-    
+
     // 取消VAO的绑定
     glBindVertexArrayOES(0);
 }
+
+
 
 - (void) dealloc
 {

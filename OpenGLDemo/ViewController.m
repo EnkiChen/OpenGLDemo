@@ -21,16 +21,13 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    self.shape = [[MLShape alloc] init];
+    MLShape *tempShape = [[MLShape alloc] init];
     
-    [self.shape addPoint:[NSValue valueWithCGPoint:CGPointMake(0.f, 0.f)]];
-    for ( int i = 0; i<100; i++ ) {
-        [self.shape addPoint:[NSValue valueWithCGPoint:CGPointMake(rand() % 200 , rand() % 200)]];
-    }
-    
-    [self.openGLView addShape:self.shape];
-    [self.shape updateGenBuffers];
-    
+    [self getBezier:CGPointMake(1024.f / 4, 768.f / 2.f)
+           control1:CGPointMake(1024.f / 2, 768.f / 4.f)
+           control2:CGPointMake(1024.f / 4 * 3, 768.f / 2.f)
+              shape:tempShape];
+    [self.openGLView addShape:tempShape];
 }
 
 - (IBAction)handlePinch:(id)sender {
@@ -58,23 +55,38 @@
     if ( UIGestureRecognizerStateBegan == tapGesture.state ) {
         
         self.shape = [[MLShape alloc] init];
-        [self.shape addPoint:[NSValue valueWithCGPoint:locationPoint]];
-        [self.shape addPoint:[NSValue valueWithCGPoint:locationPoint]];
+        [self.shape setInitPoint:locationPoint];
         [self.openGLView addShape:self.shape];
         
     } else if ( UIGestureRecognizerStateChanged == tapGesture.state ) {
     
-        [self.shape addPoint:[NSValue valueWithCGPoint:locationPoint]];
+        [self.shape addTouchPoint:locationPoint];
         [self.openGLView drawView];
         
     } else if ( UIGestureRecognizerStateEnded == tapGesture.state ) {
         
-        [self.shape addPoint:[NSValue valueWithCGPoint:locationPoint]];
+        [self.shape addTouchPoint:locationPoint];
+        
         [self.shape updateGenBuffers];
         [self.openGLView drawView];
         self.shape = nil;
     }
     
+}
+
+- (NSMutableArray*) getBezier:(CGPoint) p0 control1:(CGPoint) p1 control2:(CGPoint) p2 shape:(MLShape*) shape
+{
+    NSMutableArray *bezierpoint = [NSMutableArray array];
+    
+    for ( CGFloat t = 0.01; t < 1.0; t += 0.01 ) {
+        CGPoint p = CGPointZero;
+        p.x = pow( 1 - t , 2) * p0.x + 2 * t * (1-t) * p1.x + pow(t, 2) * p2.x;
+        p.y = pow( 1 - t , 2) * p0.y + 2 * t * (1-t) * p1.y + pow(t, 2) * p2.y;
+        
+        [shape addBezierPoint:[NSValue valueWithCGPoint:p]];
+    }
+    
+    return bezierpoint;
 }
 
 - (void)didReceiveMemoryWarning {
