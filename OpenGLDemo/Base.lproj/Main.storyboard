@@ -33,6 +33,7 @@
                         <connections>
                             <outletCollection property="gestureRecognizers" destination="HDw-Wc-0hr" appends="YES" id="r7a-Oe-BEU"/>
                             <outletCollection property="gestureRecognizers" destination="vtF-j2-xir" appends="YES" id="Hhx-Ly-m1U"/>
+                            <outletCollection property="gestureRecognizers" destination="6Ta-3G-oBz" appends="YES" id="EoR-6y-M8o"/>
                         </connections>
                     </view>
                     <connections>
@@ -40,7 +41,7 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-                <panGestureRecognizer minimumNumberOfTouches="1" id="HDw-Wc-0hr">
+                <panGestureRecognizer minimumNumberOfTouches="1" maximumNumberOfTouches="1" id="HDw-Wc-0hr">
                     <connections>
                         <action selector="handleTap:" destination="BYZ-38-t0r" id="e2o-e4-Xlx"/>
                     </connections>
@@ -50,6 +51,11 @@
                         <action selector="handlePinch:" destination="BYZ-38-t0r" id="Un0-Zg-5sV"/>
                     </connections>
                 </pinchGestureRecognizer>
+                <panGestureRecognizer minimumNumberOfTouches="2" maximumNumberOfTouches="2" id="6Ta-3G-oBz">
+                    <connections>
+                        <action selector="handleTrasdform:" destination="BYZ-38-t0r" id="Uzo-Ma-Lw1"/>
+                    </connections>
+                </panGestureRecognizer>
             </objects>
         </scene>
     </scenes>

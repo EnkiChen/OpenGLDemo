@@ -13,5 +13,6 @@
 - (void)stopAnimate;
 - (void) addShape:(id) shape;
 - (void) scale:(CGFloat) scale anchorPoint:(CGPoint) anchorPoint;
+- (void) transform:(CGFloat) tx ty:(CGFloat) ty;
 - (void)drawView;
 @end

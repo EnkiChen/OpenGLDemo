@@ -133,6 +133,13 @@
     }
 }
 
+- (void) transform:(CGFloat) tx ty:(CGFloat) ty
+{
+    for ( MLShape *shapeobj in shapes ) {
+        [shapeobj transform:tx ty:ty];
+    }
+}
+
 - (void) addShape:(id) shapeobj
 {
     [shapes addObject:shapeobj];
@@ -248,6 +255,8 @@
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);
+    
+
     
     return YES;
 }

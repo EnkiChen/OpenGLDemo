@@ -22,4 +22,5 @@ typedef struct _Vertex{
 - (void) updateGenBuffers;
 - (void) draw;
 - (void) scale:(CGFloat) scale anchorPoint:(CGPoint) anchorPoint;
+- (void) transform:(CGFloat) tx ty:(CGFloat) ty;
 @end

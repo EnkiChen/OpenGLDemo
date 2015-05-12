@@ -163,11 +163,21 @@ CGPoint midPoint(CGPoint p1, CGPoint p2)
     }
 }
 
+- (void) transform:(CGFloat) tx ty:(CGFloat) ty
+{
+    for ( int i = 0; i < _points.count; i++ ) {
+        
+        _pVertex3D[i].x += tx * [UIScreen mainScreen].scale;
+        _pVertex3D[i].y += ty * [UIScreen mainScreen].scale;
+        
+    }
+}
+
 - (void) draw
 {
     glColor4f(0.9, 0.9f, 0.9f, 1.f);
-    glLineWidth(4.f);
-    glPointSize(3.f);
+    glLineWidth(2.f);
+    glPointSize(2.f);
     
     if ( isVAO ) {
         
@@ -179,14 +189,12 @@ CGPoint midPoint(CGPoint p1, CGPoint p2)
         glEnableClientState(GL_VERTEX_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, (const GLvoid*)_pVertex3D);
         glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)_points.count);
-        
-//        glColor4f(0.9, 0.0f, 0.0f, 1.f);
-//        glVertexPointer(2, GL_FLOAT, 0, (const GLvoid*)_pVertex3D);
-//        glDrawArrays(GL_POINTS, 0, (GLsizei)_points.count);
-        
+        glVertexPointer(2, GL_FLOAT, 0, (const GLvoid*)_pVertex3D);
+        glDrawArrays(GL_POINTS, 0, (GLsizei)_points.count);
         glDisableClientState(GL_VERTEX_ARRAY);
     
     }
+
 }
 
 

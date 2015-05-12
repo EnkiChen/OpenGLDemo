@@ -74,6 +74,29 @@
     
 }
 
+- (IBAction) handleTrasdform:(UIPanGestureRecognizer*) sender
+{
+    UIPanGestureRecognizer *panGesture = sender;
+    
+    CGPoint translation = [panGesture translationInView:panGesture.view];
+    [panGesture setTranslation:CGPointZero inView:panGesture.view];
+    
+    if ( UIGestureRecognizerStateBegan == panGesture.state ) {
+        
+        [self.openGLView transform:translation.x ty:translation.y];
+        
+    } else if ( UIGestureRecognizerStateChanged == panGesture.state ) {
+        
+        [self.openGLView transform:translation.x ty:translation.y];
+        [self.openGLView drawView];
+        
+    } else if ( UIGestureRecognizerStateEnded == panGesture.state ) {
+        
+        [self.openGLView transform:translation.x ty:translation.y];
+        [self.openGLView drawView];
+    }
+}
+
 - (NSMutableArray*) getBezier:(CGPoint) p0 control1:(CGPoint) p1 control2:(CGPoint) p2 shape:(MLShape*) shape
 {
     NSMutableArray *bezierpoint = [NSMutableArray array];
